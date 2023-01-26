@@ -20,6 +20,7 @@ import org.traccar.BaseProtocol;
 import org.traccar.PipelineBuilder;
 import org.traccar.TrackerServer;
 import org.traccar.config.Config;
+import org.traccar.model.Command;
 
 import java.nio.ByteOrder;
 
@@ -29,10 +30,18 @@ public class Minifinder2Protocol extends BaseProtocol {
 
     @Inject
     public Minifinder2Protocol(Config config) {
+        setSupportedDataCommands(
+                Command.TYPE_CUSTOM,                
+                Command.TYPE_POWER_OFF,
+                Command.TYPE_REBOOT_DEVICE, 
+                Command.TYPE_SET_TIMEZONE, 
+                Command.TYPE_POSITION_PERIODIC);        
+        
         addServer(new TrackerServer(config, getName(), false) {
             @Override
             protected void addProtocolHandlers(PipelineBuilder pipeline, Config config) {
                 pipeline.addLast(new LengthFieldBasedFrameDecoder(ByteOrder.LITTLE_ENDIAN, 1200, 2, 2, 4, 0, true));
+                pipeline.addLast(new Minifinder2ProtocolEncoder(Minifinder2Protocol.this));                
                 pipeline.addLast(new Minifinder2ProtocolDecoder(Minifinder2Protocol.this));
             }
         });

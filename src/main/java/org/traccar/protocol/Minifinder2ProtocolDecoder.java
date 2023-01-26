@@ -49,7 +49,14 @@ public class Minifinder2ProtocolDecoder extends BaseProtocolDecoder {
     public static final int MSG_CONFIGURATION = 0x02;
     public static final int MSG_SERVICES = 0x03;
     public static final int MSG_RESPONSE = 0x7F;
+    public static final short DEFAULT_SEQUENCE_ID = 0x0100;
+    
+    private int sequenceId = DEFAULT_SEQUENCE_ID;
 
+    public int getSequenceId() {
+        return sequenceId;
+    }
+    
     private String decodeAlarm(int code) {
         if (BitUtil.check(code, 0)) {
             return Position.ALARM_LOW_BATTERY;
@@ -142,11 +149,11 @@ public class Minifinder2ProtocolDecoder extends BaseProtocolDecoder {
         int flags = buf.readUnsignedByte();
         buf.readUnsignedShortLE(); // length
         buf.readUnsignedShortLE(); // checksum
-        int index = buf.readUnsignedShortLE();
+        sequenceId = buf.readUnsignedShortLE();
         int type = buf.readUnsignedByte();
 
         if (BitUtil.check(flags, 4)) {
-            sendResponse(channel, remoteAddress, index, type, buf);
+            sendResponse(channel, remoteAddress, sequenceId, type, buf);
         }
 
         if (type == MSG_DATA) {
@@ -170,6 +177,9 @@ public class Minifinder2ProtocolDecoder extends BaseProtocolDecoder {
                     keys.clear();
                     hasLocation = false;
                     position = new Position(getProtocolName());
+                    if (deviceSession != null) {
+                        position.setDeviceId(deviceSession.getDeviceId());
+                    }
                 }
                 keys.add(key);
 
