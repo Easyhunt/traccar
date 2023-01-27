@@ -74,7 +74,7 @@ public class Minifinder2ProtocolEncoder extends BaseProtocolEncoder {
                      content.writeByte(COMMAND_CONFIGURATION_TIME_ZONE_LENGTH); // key length
                      content.writeByte(COMMAND_CONFIGURATION_TIME_ZONE_KEY);    // key
                      int offset = TimeZone.getTimeZone(command.getString(Command.KEY_TIMEZONE)).getRawOffset() / (1000 * 60 * 15);
-                     content.writeBytes(String.valueOf(offset).getBytes(StandardCharsets.US_ASCII));
+                     content.writeBytes(String.valueOf(offset).getBytes(StandardCharsets.US_ASCII)); // signed char, unit:15minutes. 0, -48 to +56
                      break;
                  case Command.TYPE_POSITION_PERIODIC:
                      content.writeByte(COMMAND_CONFIGURATION);
